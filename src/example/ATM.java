@@ -32,7 +32,7 @@ public class ATM {
 			}
 
 			//deposit money
-			if(operation.equals("deposit")){
+			else if(operation.equals("deposit")){
 				try {
 					long sessionId = bank.hasActiveSession(Integer.parseInt(args[3]));
 

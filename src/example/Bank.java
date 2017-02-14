@@ -73,6 +73,9 @@ public class Bank implements BankInterface {
 					System.out.println("ACCOUNT FOUND: " + accountnum);
 					int bal = a.getBalance();
 					a.setBalance(bal + amount);
+					List<Transaction> trs = a.getTransactions();
+					Transaction t = new Transaction(accountnum, new Date(), "credit", amount);
+					trs.add(t);
 					System.out.println(amount + " SUCCESSFULLY ADDED TO ACCOUNT NUMBER: " + accountnum + "." + " OLD BALANCE: " + bal + " NEW BALANCE: " + a.getBalance());
 				}
 				else {
@@ -98,7 +101,10 @@ public class Bank implements BankInterface {
 					System.out.println("ACCOUNT FOUND: " + accountnum);
 					int bal = a.getBalance();
 					a.setBalance(bal - amount);
-					System.out.println(amount + " SUCCESSFULLY ADDED TO ACCOUNT NUMBER: " + accountnum + "." + " OLD BALANCE: " + bal + " NEW BALANCE: " + a.getBalance());
+					List<Transaction> trs = a.getTransactions();
+					Transaction t = new Transaction(accountnum, new Date(), "debit", amount);
+					trs.add(t);
+					System.out.println(amount + " SUCCESSFULLY WITHDRAWN FROM ACCOUNT NUMBER: " + accountnum + "." + " OLD BALANCE: " + bal + " NEW BALANCE: " + a.getBalance());
 				}
 				else {
 					System.out.println("ACCOUNT DOES NOT EXIST!");
