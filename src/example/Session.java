@@ -23,8 +23,7 @@ public class Session {
 	//create random session id for a given user/host
 	public long setSessionId() {
         long v = -1;
-        do
-        {
+        do {
             final UUID uid = UUID.randomUUID();
             final ByteBuffer b = ByteBuffer.wrap(new byte[16]);
             b.putLong(uid.getLeastSignificantBits());

@@ -5,6 +5,7 @@ import java.util.Date;
 
 public class Transaction implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	private int account;
 	private Date tDate;
 	private String type;

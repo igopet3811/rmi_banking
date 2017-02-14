@@ -12,6 +12,7 @@ public class ATM {
 	public static void main (String args[]) throws Exception {
 
 		try {
+			// variables from command line arguments
 			String name = "Bank";
 			String host = (String)args[0];
 			int port = Integer.parseInt(args[1]);
@@ -88,7 +89,7 @@ public class ATM {
 				}
 			}
 			
-			//inquiry
+			//statement
 			else if(operation.equals("statement")){
 				try {
 					DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
@@ -113,6 +114,7 @@ public class ATM {
 				}
 			}
 			else{
+				//unrecognised command
 				System.out.println("UNRECOGNISED COMMAND");
 			}
 
