@@ -67,7 +67,7 @@ public class Bank implements BankInterface {
 		//check if session exists for specified account and perform operation
 		try {
 			long sess = hasActiveSession(accountnum);
-			// check if account exist and perform operation
+			// check if account exist and perform operation, could implement as an transaction as well to reflect in transactions
 			for(Account a: accounts){
 				if(accountnum == a.getAccNo()){
 					System.out.println("ACCOUNT FOUND: " + accountnum);
