@@ -43,7 +43,7 @@ public class Session {
 	// setting the session expiry
 	public Date setExpiry() {
 		Calendar date = Calendar.getInstance();		
-		date.add(Calendar.MINUTE, 5);
+		date.add(Calendar.MINUTE, 1);
 		return date.getTime();
 	}
 	

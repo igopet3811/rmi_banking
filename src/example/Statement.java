@@ -1,19 +1,60 @@
 package example;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public interface Statement extends Serializable {
+public class Statement implements StatementInterface {
 
-public int getAccountnum();  // returns account number associated with this statement
+	private static final long serialVersionUID = 1L;
+	private List<Transaction> transactions;
+	private Account account;
+	private Date from;
+	private Date to;
 
-public Date getStartDate(); // returns start Date of Statement
+	//constructor
+	public Statement(Account a, Date f, Date t, List<Transaction> tt) {
+		transactions = tt;
+		this.account = a;
+		this.from = f;
+		this.to = t;
+	}
 
-public Date getEndDate(); // returns end Date of Statement
+	//getters and setters
+	public void setTransaction(Transaction t) {
+		transactions.add(t);
+	}
 
-public String getAccoutName(); // returns name of account holder
+	@Override
+	public int getAccountnum() {
+		return account.getAccNo();
+	}
 
-public List  getTransations(); // returns list of Transaction objects that encapsulate details about each transaction
+	@Override
+	public Date getStartDate() {
+		return from;
+	}
 
+	@Override
+	public Date getEndDate() {
+		return to;
+	}
+
+	@Override
+	public String getAccoutName() {
+		return account.getUsername();
+	}
+
+	@Override
+	public List<Transaction> getTransactions() {
+		List<Transaction> trs = new ArrayList<>();
+
+		for (Transaction t: transactions) {
+			if (t.getDate().after(from) && t.getDate().before(to) && t.getAccount() == account.getAccNo()) {
+				trs.add(t);
+			}
+		}
+		return trs;
+		
+	}
 }

@@ -17,12 +17,16 @@ public class Bank implements BankInterface {
 	private List<Account> accounts;
 	private HashMap<Account, Session> activeSessions;
 
+	//constructor
 	public Bank(List<Account> acc, HashMap<Account, Session> as) throws RemoteException {
 		super();
 		accounts = acc;
 		activeSessions = as;
 	}
 
+	/**
+	 * Method to provide login functionality
+	 */
 	@Override
 	public long login(String username, String password) throws RemoteException, InvalidLogin {
 
@@ -55,39 +59,96 @@ public class Bank implements BankInterface {
 		return sessionId;
 	}
 
+	/**
+	 * Method to deposit funds into account
+	 */
 	@Override
 	public void deposit(int accountnum, int amount, long sessionId) throws RemoteException {
-		// check if account exist and perform operation
-		for(Account a: accounts){
-			if(accountnum == a.getAccNo()){
-				System.out.println("FOUND ACCOUNT " + accountnum);
-				int bal = a.getBalance();
-				a.setBalance(bal + amount);
-				System.out.println("ADDED TO ACCno: " + accountnum + " " + amount +". OLD BALANCE: " + bal + " NEW: " + a.getBalance());
+		//check if session exists for specified account and perform operation
+		try {
+			long sess = hasActiveSession(accountnum);
+			// check if account exist and perform operation
+			for(Account a: accounts){
+				if(accountnum == a.getAccNo()){
+					System.out.println("ACCOUNT FOUND: " + accountnum);
+					int bal = a.getBalance();
+					a.setBalance(bal + amount);
+					System.out.println(amount + " SUCCESSFULLY ADDED TO ACCOUNT NUMBER: " + accountnum + "." + " OLD BALANCE: " + bal + " NEW BALANCE: " + a.getBalance());
+				}
+				else {
+					System.out.println("ACCOUNT DOES NOT EXIST!");
+				}
 			}
-			else {
-				System.out.println("ACCOUNT DOESNT EXIST!");
-			}
+		} catch (InvalidSession e) {
+			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Method to withdraw money from account
+	 */
 	@Override
-	public void withdraw(int accountnum, int amount) throws RemoteException {
-		// TODO Auto-generated method stub
-
+	public void withdraw(int accountnum, int amount, long sessionId) throws RemoteException {
+		// check if account exist and perform operation
+		try {
+			long sess = hasActiveSession(accountnum);
+			// check if account exist and perform operation
+			for(Account a: accounts){
+				if(accountnum == a.getAccNo()){
+					System.out.println("ACCOUNT FOUND: " + accountnum);
+					int bal = a.getBalance();
+					a.setBalance(bal - amount);
+					System.out.println(amount + " SUCCESSFULLY ADDED TO ACCOUNT NUMBER: " + accountnum + "." + " OLD BALANCE: " + bal + " NEW BALANCE: " + a.getBalance());
+				}
+				else {
+					System.out.println("ACCOUNT DOES NOT EXIST!");
+				}
+			}
+		} catch (InvalidSession e) {
+			e.printStackTrace();
+		}
 	}
 
+	/**
+	 * Method to check balance
+	 */
 	@Override
-	public int inquiry(int accountnum) throws RemoteException {
-		// TODO Auto-generated method stub
-		return 0;
+	public int inquiry(int accountnum, long sessionId) throws RemoteException {
+		// check if account exist and perform operation
+		int balance = -1;
+		try {
+			long sess = hasActiveSession(accountnum);
+			for(Account a: accounts){
+				if(accountnum == a.getAccNo()){
+					System.out.println("ACCOUNT FOUND: " + accountnum);
+					balance = a.getBalance();
+					System.out.println("ACC NUMBER: " + accountnum + ". BALANCE: " + balance);
+				}
+				else {
+					System.out.println("ACCOUNT DOES NOT EXIST!");
+				}
+			}
+		} catch (InvalidSession e) {
+			e.printStackTrace();
+		}
+		return balance;
 	}
 
+	/**
+	 * Method to display statement within specific data range
+	 */
 	@Override
-	public Statement getStatement(Date from, Date to) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public Statement getStatement(int acc, Date from, Date to) throws RemoteException {
+		Statement s = null;
+		
+        for(Account a : accounts){
+	        if(acc == a.getAccNo()){
+	        	System.out.println("RETRIEVING STATEMENT" + a.getTransactions().size());
+	        	s = new Statement(a, from, to, (List<Transaction>)a.getTransactions());
+	        }
+        }
+		return s; 
+	}	
 
 	/**
 	 * Method to check if active session exists for a selected name - password combination
@@ -99,8 +160,7 @@ public class Bank implements BankInterface {
 			if(u.equals(a.getUsername()) && p.equals(a.getPassword())){
 				if(activeSessions.get(a) != null && activeSessions.get(a).getExpiry().after(new Date())){
 					System.out.println("SESSION ACTIVE UNTIL " + activeSessions.get(a).getExpiry());
-					System.out.println(activeSessions.get(a).getExpiry().before(new Date()));
-
+					
 					session = activeSessions.get(a).getSessionId();
 				}
 				else {
@@ -110,18 +170,18 @@ public class Bank implements BankInterface {
 		}
 		return session;
 	}
-	
+
 	/**
-	 * Method to fetch session from account number provided
+	 * Method to fetch session from account number provided, checks session expiry and client ip
 	 */
 	@Override
 	public long hasActiveSession(int accNum) throws RemoteException, InvalidSession{
-		
+
 		long session = -1;
-		
+
 		for(Account acc : accounts){
 			if(acc.getAccNo() == accNum){
-				if(activeSessions.get(acc).getExpiry().after(new Date())){
+				if(activeSessions.get(acc) != null && activeSessions.get(acc).getExpiry().after(new Date()) && getClientHost().equals(activeSessions.get(acc).getIpAddress())){
 					session = activeSessions.get(acc).getSessionId();
 				}
 				else {
@@ -129,39 +189,30 @@ public class Bank implements BankInterface {
 				}
 			}
 		}		
-
 		return session;
 	}
 
-	public List<Account> getAccounts() {
-		return accounts;
-	}
-
-	public void setAccounts(List<Account> accounts) {
-		this.accounts = accounts;
-	}
-
-	public HashMap<Account, Session> getActiveSessions() {
-		return activeSessions;
-	}
-
-	public void setActiveSessions(HashMap<Account, Session> activeSessions) {
-		this.activeSessions = activeSessions;
-	}
-
-
 	public static void main(String args[]) throws Exception {
 
-		// setup an account
+		// setup an account with dummy objects and values
 		List<Account> listAcc = new ArrayList<>();
 		HashMap<Account,Session> sessions = new HashMap<>();
+		List<Transaction> transactions = new ArrayList<>();
+		
 		Account a = new Account();
 		a.setAccNo(100);
 		a.setBalance(1000);
 		a.setPassword("pass1");
 		a.setUsername("user1");
 		listAcc.add(a);
-
+		
+		Transaction t = new Transaction(100, new Date(), "debit", 100);
+		Transaction t2 = new Transaction(100, new Date(), "credit", 500);
+		transactions.add(t);
+		transactions.add(t2);
+		
+		a.setTransactions(transactions);
+	
 		try {
 			String name = "Bank";
 			BankInterface bank = new Bank(listAcc, sessions);
